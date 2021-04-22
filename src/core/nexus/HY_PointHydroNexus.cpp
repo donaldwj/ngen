@@ -127,6 +127,8 @@ double HY_PointHydroNexus::get_downstream_flow(long catchment_id, time_step_t t,
     }
 }
 
+#include <iostream>
+
 void HY_PointHydroNexus::add_upstream_flow(double val, long catchment_id, time_step_t t)
 {
      if ( t < min_timestep ) BOOST_THROW_EXCEPTION(invalid_time_step());
@@ -141,7 +143,9 @@ void HY_PointHydroNexus::add_upstream_flow(double val, long catchment_id, time_s
 
         id_flow_vector v;
         v.push_back(std::pair<long,double>(catchment_id,val));
-         upstream_flows[t] = v;
+        upstream_flows[t] = v;
+
+        std::cerr << "Creating upstream flows for vector for time step " << t << " with single value of " << val << "\n";
     }
     else
     {
@@ -153,6 +157,8 @@ void HY_PointHydroNexus::add_upstream_flow(double val, long catchment_id, time_s
             // this means there have been no downstream request and we can add water
 
              s1->second.push_back(std::pair<long,double>(catchment_id,val));
+
+             std::cerr << "Adding flows for vector for time step " << t << " with new value of " << val << "\n";
         }
         else
         {
