@@ -145,7 +145,7 @@ void HY_PointHydroNexus::add_upstream_flow(double val, long catchment_id, time_s
         v.push_back(std::pair<long,double>(catchment_id,val));
         upstream_flows[t] = v;
 
-        std::cerr << "Creating upstream flows for vector for time step " << t << " with single value of " << val << "\n";
+        //std::cerr << "Creating upstream flows for vector for time step " << t << " with single value of " << val << "\n";
     }
     else
     {
@@ -158,7 +158,7 @@ void HY_PointHydroNexus::add_upstream_flow(double val, long catchment_id, time_s
 
              s1->second.push_back(std::pair<long,double>(catchment_id,val));
 
-             std::cerr << "Adding flows for vector for time step " << t << " with new value of " << val << "\n";
+             //std::cerr << "Adding flows for vector for time step " << t << " with new value of " << val << "\n";
         }
         else
         {
