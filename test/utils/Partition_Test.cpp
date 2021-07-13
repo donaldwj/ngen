@@ -117,6 +117,8 @@ TEST_F(PartitionsParserTest, ReferenceHydrofabric)
     const std::string global_catchment_data_path = file_search(hydro_fabric_paths,"catchment_data.geojson");
     
     std::string link_key = "toid";
+    
+    std::unordered_map<std::string, std::pair<std::string, int> > remote_connections;
    
     
     Partitions_Parser partition_parser = Partitions_Parser(file_path);
@@ -206,6 +208,7 @@ TEST_F(PartitionsParserTest, ReferenceHydrofabric)
                 if ( pos >= 0 )
                 {
                     std::cout << "Found id: " << id << " in partition: " << pos << "\n";
+                    remote_connections[n] = std::make_pair(id,pos);
                     ++remote_catchments;
                 }
                 else
@@ -223,7 +226,7 @@ TEST_F(PartitionsParserTest, ReferenceHydrofabric)
             }
         }
         
-        auto dest_ids = local_network.get_destination_ids(n);
+        auto dest_ids = global_network.get_destination_ids(n);
         
         std::cout << "Found " << dest_ids.size() << " downstream catchments for nexus with id: " << n << "\n";
         
@@ -254,6 +257,8 @@ TEST_F(PartitionsParserTest, ReferenceHydrofabric)
                 if ( pos >= 0 )
                 {
                     std::cout << "Found id: " << id << " in partition: " << pos << "\n";
+                    remote_connections[n] = std::make_pair(id,pos);
+                    ++remote_catchments;
                 }
                 else
                 {
