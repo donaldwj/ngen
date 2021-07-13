@@ -126,10 +126,25 @@ TEST_F(PartitionsParserTest, ReferenceHydrofabric)
 
     // read the global hydrofabric
     geojson::GeoJSON global_catchment_collection = geojson::read("/apd_common/test/hydrofabric/catchment_data.geojson");
+    geojson::GeoJSON global_nexus_collection = geojson::read("/apd_common/test/hydrofabric/nexus_data.geojson");
     
+    //Now read the collection of catchments, iterate it and add them to the nexus collection
+    //also link them by to->id
+    //std::cout << "Iterating Catchment Features" << std::endl;
+    for(auto& feature: *global_catchment_collection)
+    {
+        //feature->set_id(feature->get_property("ID").as_string());
+        global_nexus_collection->add_feature(feature);
+        //std::cout<<"Catchment "<<feature->get_id()<<" -> Nexus "<<feature->get_property("toID").as_string()<<std::endl;
+    }
+    
+    std::string linkage = "toid";
+    global_nexus_collection->link_features_from_property(nullptr, &linkage);
+
+
     // make a global network
-    Network global_network(global_catchment_collection, &link_key);
-    
+    Network global_network(global_nexus_collection);
+  
     // get he local hydro fabric
     
     auto& partitions = partition_parser.partition_ranks;  // get the map of all partitions
@@ -191,6 +206,7 @@ TEST_F(PartitionsParserTest, ReferenceHydrofabric)
                 if ( pos >= 0 )
                 {
                     std::cout << "Found id: " << id << " in partition: " << pos << "\n";
+                    ++remote_catchments;
                 }
                 else
                 {
