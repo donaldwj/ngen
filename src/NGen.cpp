@@ -20,7 +20,7 @@
 #ifdef ACTIVATE_PYTHON
 #include "python/InterpreterUtil.hpp"
 #endif // ACTIVATE_PYTHON
-    
+
 #ifdef NGEN_ROUTING_ACTIVE
 #include "routing/Routing_Py_Adapter.hpp"
 #endif // NGEN_ROUTING_ACTIVE
@@ -46,7 +46,15 @@ int mpi_rank;
 int mpi_num_procs;
 #endif
 
+#ifdef NGEN_PROFILING
+#include <ctime>
+#endif
+
 std::unordered_map<std::string, std::ofstream> nexus_outfiles;
+
+#ifdef NGEN_PROFILING
+std::unordered_map<std::string, std::ofstream> catchment_porfile_outfiles
+#endif
 
 //Note: Use below if developing in-memory transfer of nexus flows to routing
 //std::unordered_map<std::string, std::vector<double>> nexus_flows;
@@ -185,12 +193,12 @@ int main(int argc, char *argv[]) {
 
     //Read the collection of nexus
     std::cout << "Building Nexus collection" << std::endl;
-    
+
     #ifdef NGEN_MPI_ACTIVE
     Partitions_Parser partition_parser(PARTITION_PATH);
     // TODO: add something here to make sure this step worked for every rank, and maybe to checksum the file
     partition_parser.parse_partition_file();
-    
+
     std::vector<PartitionData> &partitions = partition_parser.partition_ranks;
     PartitionData &local_data = partitions[mpi_rank];
     if (!nexus_subset_ids.empty()) {
@@ -209,7 +217,7 @@ int main(int argc, char *argv[]) {
 
     // TODO: Instead of iterating through a collection of FeatureBase objects mapping to catchments, we instead want to iterate through HY_Catchment objects
     geojson::GeoJSON catchment_collection = geojson::read(catchmentDataFile, catchment_subset_ids);
-    
+
     for(auto& feature: *catchment_collection)
     {
         //feature->set_id(feature->get_property("ID").as_string());
@@ -245,6 +253,13 @@ int main(int argc, char *argv[]) {
         #endif
     }
 
+    #ifdef NGEN_PROFILING
+    for(const auto& id : features.catchments()) {
+        catchment_porfile_outfiles[id].open("./"+id+"_profile.csv", std::ios::trunc);
+        catchment_porfile_outfiles[id] << "catchment id, formulation, time, ranks, hydrofabric\n"
+    }
+    #endif
+
     std::cout<<"Running Models"<<std::endl;
 
     std::shared_ptr<pdm03_struct> pdm_et_data = std::make_shared<pdm03_struct>(get_et_params());
@@ -260,7 +275,30 @@ int main(int argc, char *argv[]) {
         //TODO redesign to avoid this cast
         auto r_c = dynamic_pointer_cast<realization::Catchment_Formulation>(r);
         r_c->set_et_params(pdm_et_data);
+
+        #ifdef NGEN_PROFILING
+        struct timespec ts1;
+        int rv1 = clock_gettime(CLOCK_REALTIME,&ts1);
+        #endif NGEN_PROFILING
+
         double response = r_c->get_response(output_time_index, 3600.0);
+
+        #ifdef NGEN_PROFILING
+        struct timespec ts1;
+        int ts2 = clock_gettime(CLOCK_REALTIME,&ts2);
+
+        time_t delta_s = ts2.tv_sec - ts1.tv_sec;
+        long delta_ns = ts2.tv_nsec - ts1.tv_nsec;
+
+        long profiled_time - (delta_s * 1000000000) + delta_ns
+        catchment_porfile_outfiles[id] << id << ","
+            << "GET FORMULATION NAME" << ","
+            << profiled_time << ","
+            << mpi_ranks << ","
+            << catchmentDataFile << "\n";
+
+        #endif NGEN_PROFILING
+
         std::string output = std::to_string(output_time_index)+","+current_timestamp+","+
                              r_c->get_output_line_for_timestep(output_time_index)+"\n";
         r_c->write_output(output);
@@ -310,27 +348,27 @@ int main(int argc, char *argv[]) {
 
         //Note: Use below if developing in-memory transfer of nexus flows to routing
         //If using below, then another single time vector would be needed to hold the timestamp
-        //nexus_flows[id].push_back(contribution_at_t); 
+        //nexus_flows[id].push_back(contribution_at_t);
       } //done nexuses
     } //done time
     std::cout<<"Finished "<<manager->Simulation_Time_Object->get_total_output_times()<<" timesteps."<<std::endl;
 
 
   #ifdef NGEN_ROUTING_ACTIVE
-    
+
     //Syncronization here. MPI barrier. If rank == 0, do routing
 
     if(manager->get_using_routing()) {
       std::cout<<"Using Routing"<<std::endl;
 
       std::string t_route_connection_path = manager->get_t_route_connection_path();
-      
+
       std::string input_path = manager->get_input_path();
-   
+
       int number_of_timesteps = manager->Simulation_Time_Object->get_total_output_times();
 
       int delta_time = manager->Simulation_Time_Object->get_output_interval_seconds();
- 
+
       routing_py_adapter::Routing_Py_Adapter routing_py_adapter1(t_route_connection_path, input_path, catchment_subset_ids, number_of_timesteps, delta_time);
     }
     else {
