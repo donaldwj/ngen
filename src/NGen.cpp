@@ -294,7 +294,7 @@ int main(int argc, char *argv[]) {
         time_t delta_s = ts2.tv_sec - ts1.tv_sec;
         long delta_ns = ts2.tv_nsec - ts1.tv_nsec;
 
-        long profiled_time = (delta_s * 1000000000) + delta_ns;
+        long long profiled_time = (delta_s * 1000000000) + delta_ns;
         catchment_porfile_outfile << id << ","
             << r_c->get_id() << ","
             << profiled_time << ","
