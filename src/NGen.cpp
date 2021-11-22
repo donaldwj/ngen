@@ -292,7 +292,7 @@ int main(int argc, char *argv[]) {
 
         long profiled_time = (delta_s * 1000000000) + delta_ns;
         catchment_porfile_outfiles[id] << id << ","
-            << "GET FORMULATION NAME" << ","
+            << r_c->get_id() << ","
             << profiled_time << ","
             << mpi_rank << ","
             << catchmentDataFile << "\n";
