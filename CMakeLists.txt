@@ -95,6 +95,10 @@ else()
     endif()
 endif()
 
+if(PROFILE_ACTIVE)
+	add_compile_definitions(NGEN_PROFILING)
+endif()
+
 if(MPI_ACTIVE)
     find_package(MPI)
     add_compile_definitions(NGEN_MPI_ACTIVE)

@@ -53,7 +53,7 @@ int mpi_num_procs;
 std::unordered_map<std::string, std::ofstream> nexus_outfiles;
 
 #ifdef NGEN_PROFILING
-std::unordered_map<std::string, std::ofstream> catchment_porfile_outfiles
+std::unordered_map<std::string, std::ofstream> catchment_porfile_outfiles;
 #endif
 
 //Note: Use below if developing in-memory transfer of nexus flows to routing
@@ -256,7 +256,7 @@ int main(int argc, char *argv[]) {
     #ifdef NGEN_PROFILING
     for(const auto& id : features.catchments()) {
         catchment_porfile_outfiles[id].open("./"+id+"_profile.csv", std::ios::trunc);
-        catchment_porfile_outfiles[id] << "catchment id, formulation, time, ranks, hydrofabric\n"
+        catchment_porfile_outfiles[id] << "catchment id, formulation, time, ranks, hydrofabric\n";
     }
     #endif
 
@@ -279,26 +279,26 @@ int main(int argc, char *argv[]) {
         #ifdef NGEN_PROFILING
         struct timespec ts1;
         int rv1 = clock_gettime(CLOCK_REALTIME,&ts1);
-        #endif NGEN_PROFILING
-
+        #endif // NGEN_PROFILING
+        
         double response = r_c->get_response(output_time_index, 3600.0);
 
         #ifdef NGEN_PROFILING
-        struct timespec ts1;
-        int ts2 = clock_gettime(CLOCK_REALTIME,&ts2);
+        struct timespec ts2;
+        int rv2 = clock_gettime(CLOCK_REALTIME,&ts2);
 
         time_t delta_s = ts2.tv_sec - ts1.tv_sec;
         long delta_ns = ts2.tv_nsec - ts1.tv_nsec;
 
-        long profiled_time - (delta_s * 1000000000) + delta_ns
+        long profiled_time = (delta_s * 1000000000) + delta_ns;
         catchment_porfile_outfiles[id] << id << ","
             << "GET FORMULATION NAME" << ","
             << profiled_time << ","
-            << mpi_ranks << ","
+            << mpi_rank << ","
             << catchmentDataFile << "\n";
 
-        #endif NGEN_PROFILING
-
+        #endif // NGEN_PROFILING
+        
         std::string output = std::to_string(output_time_index)+","+current_timestamp+","+
                              r_c->get_output_line_for_timestep(output_time_index)+"\n";
         r_c->write_output(output);
