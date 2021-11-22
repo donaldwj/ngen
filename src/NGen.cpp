@@ -53,7 +53,8 @@ int mpi_num_procs;
 std::unordered_map<std::string, std::ofstream> nexus_outfiles;
 
 #ifdef NGEN_PROFILING
-std::unordered_map<std::string, std::ofstream> catchment_porfile_outfiles;
+std::ofstream catchment_porfile_outfile;
+std::ofstream catchment_porfile_io_outfile;
 #endif
 
 //Note: Use below if developing in-memory transfer of nexus flows to routing
@@ -255,8 +256,11 @@ int main(int argc, char *argv[]) {
 
     #ifdef NGEN_PROFILING
     for(const auto& id : features.catchments()) {
-        catchment_porfile_outfiles[id].open("./"+id+"_profile.csv", std::ios::trunc);
-        catchment_porfile_outfiles[id] << "catchment id, formulation, time, ranks, hydrofabric\n";
+        catchment_porfile_outfile.open("./profile_" + std::to_string(mpi_rank) + ".csv", std::ios::trunc);
+        catchment_porfile_outfile << "catchment id, formulation, time, ranks, hydrofabric, loop counter\n";
+        
+        catchment_porfile_io_outfile.open("./profile_io_" + std::to_string(mpi_rank) + ".csv", std::ios::trunc);
+        catchment_porfile_io_outfile << "catchment id, formulation, time, ranks, hydrofabric, loop counter\n";
     }
     #endif
 
@@ -291,17 +295,38 @@ int main(int argc, char *argv[]) {
         long delta_ns = ts2.tv_nsec - ts1.tv_nsec;
 
         long profiled_time = (delta_s * 1000000000) + delta_ns;
-        catchment_porfile_outfiles[id] << id << ","
+        catchment_porfile_outfile << id << ","
             << r_c->get_id() << ","
             << profiled_time << ","
             << mpi_rank << ","
-            << catchmentDataFile << "\n";
+            << catchmentDataFile << ","
+            << output_time_index << "\n";
 
         #endif // NGEN_PROFILING
         
+        #ifdef NGEN_PROFILING
+        rv1 = clock_gettime(CLOCK_REALTIME,&ts1);
+        #endif // NGEN_PROFILING
         std::string output = std::to_string(output_time_index)+","+current_timestamp+","+
                              r_c->get_output_line_for_timestep(output_time_index)+"\n";
         r_c->write_output(output);
+        
+        #ifdef NGEN_PROFILING
+        rv2 = clock_gettime(CLOCK_REALTIME,&ts2);
+
+        delta_s = ts2.tv_sec - ts1.tv_sec;
+        delta_ns = ts2.tv_nsec - ts1.tv_nsec;
+
+        profiled_time = (delta_s * 1000000000) + delta_ns;
+        catchment_porfile_io_outfile << id << ","
+            << r_c->get_id() << ","
+            << profiled_time << ","
+            << mpi_rank << ","
+            << catchmentDataFile << ","
+            << output_time_index << "\n";
+
+        #endif // NGEN_PROFILING
+        
         //TODO put this somewhere else.  For now, just trying to ensure we get m^3/s into nexus output
         try{
           response *= (catchment_collection->get_feature(id)->get_property("areasqkm").as_real_number() * 1000000);
