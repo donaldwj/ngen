@@ -28,7 +28,11 @@ double UnitsHelper::get_converted_value(const std::string &in_units, double valu
     {
         ut_free(from);
         ut_free(to);
+	#ifndef NGEN_PROFILING
         throw std::runtime_error("Unable to convert " + in_units + " to " + out_units);
+	#else
+	return value;
+	#endif
     }
     double r = cv_convert_double(conv, value);
     ut_free(from);

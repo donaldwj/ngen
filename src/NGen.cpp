@@ -255,13 +255,13 @@ int main(int argc, char *argv[]) {
     }
 
     #ifdef NGEN_PROFILING
-    for(const auto& id : features.catchments()) {
-        catchment_porfile_outfile.open("./profile_" + std::to_string(mpi_rank) + ".csv", std::ios::trunc);
-        catchment_porfile_outfile << "catchment id, formulation, time, ranks, hydrofabric, loop counter\n";
+    catchment_porfile_outfile.open("./profile_" + std::to_string(mpi_rank) + ".csv", std::ios::trunc);
+    catchment_porfile_outfile << "catchment id, formulation, time, ranks, hydrofabric, loop counter\n";
         
-        catchment_porfile_io_outfile.open("./profile_io_" + std::to_string(mpi_rank) + ".csv", std::ios::trunc);
-        catchment_porfile_io_outfile << "catchment id, formulation, time, ranks, hydrofabric, loop counter\n";
-    }
+    catchment_porfile_io_outfile.open("./profile_io_" + std::to_string(mpi_rank) + ".csv", std::ios::trunc);
+    catchment_porfile_io_outfile << "catchment id, formulation, time, ranks, hydrofabric, loop counter\n";
+
+    ut_set_error_message_handler( ut_ignore );
     #endif
 
     std::cout<<"Running Models"<<std::endl;
@@ -300,7 +300,7 @@ int main(int argc, char *argv[]) {
             << profiled_time << ","
             << mpi_rank << ","
             << catchmentDataFile << ","
-            << output_time_index << "\n";
+            << output_time_index << "\n" << std::flush;
 
         #endif // NGEN_PROFILING
         
@@ -323,8 +323,7 @@ int main(int argc, char *argv[]) {
             << profiled_time << ","
             << mpi_rank << ","
             << catchmentDataFile << ","
-            << output_time_index << "\n";
-
+            << output_time_index << "\n" << std::flush;
         #endif // NGEN_PROFILING
         
         //TODO put this somewhere else.  For now, just trying to ensure we get m^3/s into nexus output
