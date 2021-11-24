@@ -286,6 +286,7 @@ int main(int argc, char *argv[]) {
         #endif // NGEN_PROFILING
         
         double response = r_c->get_response(output_time_index, 3600.0);
+	auto bmi_c = dynamic_pointer_cast<realization::Bmi_Formulation>(r_c);
 
         #ifdef NGEN_PROFILING
         struct timespec ts2;
@@ -296,7 +297,7 @@ int main(int argc, char *argv[]) {
 
         long long profiled_time = (delta_s * 1000000000) + delta_ns;
         catchment_porfile_outfile << id << ","
-            << r_c->get_id() << ","
+            << bmi_c->get_model_type_name() << ","
             << profiled_time << ","
             << mpi_rank << ","
             << catchmentDataFile << ","
@@ -319,7 +320,7 @@ int main(int argc, char *argv[]) {
 
         profiled_time = (delta_s * 1000000000) + delta_ns;
         catchment_porfile_io_outfile << id << ","
-            << r_c->get_id() << ","
+            << bmi_c->get_model_type_name() << ","
             << profiled_time << ","
             << mpi_rank << ","
             << catchmentDataFile << ","
