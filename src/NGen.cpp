@@ -261,8 +261,8 @@ int main(int argc, char *argv[]) {
     catchment_porfile_io_outfile.open("./profile_io_" + std::to_string(mpi_rank) + ".csv", std::ios::trunc);
     catchment_porfile_io_outfile << "catchment id, formulation, time, ranks, hydrofabric, loop counter\n";
 
-    ut_set_error_message_handler( ut_ignore );
     #endif
+    ut_set_error_message_handler( ut_ignore );
 
     std::cout<<"Running Models"<<std::endl;
 
