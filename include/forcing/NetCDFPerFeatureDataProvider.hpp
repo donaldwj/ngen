@@ -18,6 +18,12 @@
 using namespace netCDF;
 using namespace netCDF::exceptions;
 
+#include <string>
+#include <netcdf>
+
+using namespace netCDF;
+using namespace netCDF::exceptions;
+
 namespace data_access
 {
     class NetCDFPerFeatureDataProvider : public GenericDataProvider
