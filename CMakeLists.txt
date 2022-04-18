@@ -166,14 +166,13 @@ if(NETCDF_ACTIVE)
     set (NETCDF_F90 "YES")
     find_package(NetCDF REQUIRED)
     add_compile_definitions(NETCDF_ACTIVE)
-    if(NETCDF_FOUND)
+    if(NETCDF_FOUND AND NETCDF_HAS_PARALLEL)
         include_directories(${NETCDF_INCLUDE_DIRS})
         message("INFO Using NETCDF at ${NETCDF_LIBRARIES} and ${NETCDF_INCLUDE_DIRS}")
     else()
         message("INFO netCDF library not found")
     endif()
 endif()
-message("\n")
 
 add_executable(ngen
     src/NGen.cpp

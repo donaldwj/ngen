@@ -25,6 +25,7 @@
 #  NETCDF_INCLUDE_DIRS   - All directories to include.
 #  NETCDF_HAS_INTERFACES - Whether requested interfaces were found or not.
 #  NETCDF_${LANG}_INCLUDE_DIRS/NETCDF_${LANG}_LIBRARIES - C/C++/F70/F90 only interface
+#  NETCDF_HAS_PARALLEL   - Whether or not NetCDF was found with parallel IO support.
 #
 # Normal usage would be:
 #  set (NETCDF_F90 "YES")
@@ -92,12 +93,8 @@ macro (NetCDF_check_interface lang header libs)
 endmacro ()
 
 list (FIND NetCDF_FIND_COMPONENTS "CXX" _nextcomp)
-#message("\nINFO in FindNetCDF.cmake")
-#message("INFO NetCDF_FIND_COMPONENTS at ${NetCDF_FIND_COMPONENTS} in FindNetCDF.cmake")
-#message("INFO _nextcomp at ${_nextcomp} in FindNetCDF.cmake")
 if (_nextcomp GREATER -1)
   set (NETCDF_CXX 1)
-  #message("INFO NETCDF_CXX at ${NETCDF_CXX} in FindNetCDF.cmake")
 endif ()
 list (FIND NetCDF_FIND_COMPONENTS "F77" _nextcomp)
 if (_nextcomp GREATER -1)
@@ -122,3 +119,18 @@ message("INFO find NETCDF at ${NETCDF_LIBRARIES} and ${NETCDF_INCLUDE_DIRS} in c
 include (FindPackageHandleStandardArgs)
 find_package_handle_standard_args (NetCDF
   DEFAULT_MSG NETCDF_LIBRARIES NETCDF_INCLUDE_DIRS NETCDF_HAS_INTERFACES)
+
+function(FindNetCDF_get_is_parallel_aware include_dir)
+  file(STRINGS "${include_dir}/netcdf_meta.h" _netcdf_lines
+    REGEX "#define[ \t]+NC_HAS_PARALLEL[ \t]")
+  string(REGEX REPLACE ".*NC_HAS_PARALLEL[ \t]*([0-1]+).*" "\\1" _netcdf_has_parallel "${_netcdf_lines}")
+  if (_netcdf_has_parallel)
+    set(NETCDF_HAS_PARALLEL TRUE PARENT_SCOPE)
+  else()
+    set(NETCDF_HAS_PARALLEL FALSE PARENT_SCOPE)
+  endif()
+endfunction()
+
+if (NETCDF_INCLUDE_DIR)
+  FindNetCDF_get_is_parallel_aware("${NETCDF_INCLUDE_DIR}")
+endif ()
