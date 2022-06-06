@@ -436,7 +436,7 @@ namespace data_access
                 return cache_hit->second;
             }
 
-            throw std::logic_error("Got request for variable " + name + " but it was not found in the cache. This should not happen." + SOURCE_LOC);
+            throw std::runtime_error("Got request for variable " + name + " but it was not found in the cache. This should not happen." + SOURCE_LOC);
         }
 
         const std::string& get_ncvar_units(const std::string& name){
@@ -445,7 +445,7 @@ namespace data_access
                 return cache_hit->second;
             }
 
-            throw std::logic_error("Got units request for variable " + name + " but it was not found in the cache. This should not happen." + SOURCE_LOC);
+            throw std::runtime_error("Got units request for variable " + name + " but it was not found in the cache. This should not happen." + SOURCE_LOC);
         }
 
     };
