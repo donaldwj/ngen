@@ -90,6 +90,7 @@ add_test(test_realization_config
         realizations/Formulation_Manager_Test.cpp
         NGen::core
         NGen::realizations_catchment
+        NGen::forcing
         NGen::core_mediator
         NGen::forcing
         libudunits2
@@ -293,6 +294,7 @@ add_test(
         NGen::core
         NGen::core_nexus
         NGen::core_mediator
+        NGen::forcing
         NGen::geojson
         NGen::realizations_catchment
         NGen::forcing
@@ -327,6 +329,7 @@ add_test(
         NGen::core
         NGen::core_nexus
         NGen::core_mediator
+        NGen::forcing
         NGen::geojson
         NGen::realizations_catchment
         NGen::forcing
@@ -365,6 +368,7 @@ add_test(
         gmock
         NGen::core_nexus
         NGen::core_mediator
+        NGen::forcing
         NGen::geojson
         NGen::realizations_catchment
         NGen::forcing
