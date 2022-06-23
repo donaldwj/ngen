@@ -13,7 +13,6 @@
 #include "assert.h"
 #include <iomanip>
 #include <boost/compute/detail/lru_cache.hpp>
-
 #include <UnitsHelper.hpp>
 #include <StreamHandler.hpp>
 
@@ -379,15 +378,11 @@ namespace data_access
 
             auto cat_pos = id_pos[selector.get_id()];
 
-
-
             double t1 = time_vals[idx1];
             double t2 = time_vals[idx2];
-
             double rvalue = 0.0;
-            
-            auto ncvar = get_ncvar(selector.get_variable_name());
 
+            auto ncvar = get_ncvar(selector.get_variable_name());
             std::string native_units = get_ncvar_units(selector.get_variable_name());
 
             auto read_len = idx2 - idx1 + 1;
@@ -471,7 +466,9 @@ namespace data_access
             }
             catch (const std::runtime_error& e)
             {
+                #ifndef NGEN_PROFILING
                 std::cerr<<"Unit conversion error: "<<std::endl<<e.what()<<std::endl<<"Returning unconverted value!"<<std::endl;
+                #endif
                 return rvalue;
             }
 
@@ -501,7 +498,7 @@ namespace data_access
         boost::compute::detail::lru_cache<std::string, std::shared_ptr<std::vector<double>>> value_cache;
         size_t cache_slice_t_size = 1;
         size_t cache_slice_c_size = 1;
-
+        
         const netCDF::NcVar& get_ncvar(const std::string& name){
             auto cache_hit = ncvar_cache.find(name);
             if(cache_hit != ncvar_cache.end()){
