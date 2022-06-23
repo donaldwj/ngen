@@ -306,6 +306,10 @@ if(NGEN_QUIET)
 add_compile_definitions(NGEN_QUIET)
 endif()
 
+if(PROFILING_ACTIVE)
+add_compile_definitions(NGEN_PROFILING)
+endif()
+
 add_subdirectory("src/core")
 add_dependencies(core libudunits2)
 add_subdirectory("src/geojson")
