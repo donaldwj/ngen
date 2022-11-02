@@ -4,6 +4,7 @@
 #ifdef NGEN_MPI_ACTIVE
 
 #include <unordered_map>
+#include <set>
 
 #include <HY_Catchment.hpp>
 #include <HY_PointHydroNexusRemote.hpp>
@@ -27,6 +28,14 @@ namespace hy_features {
 
         inline auto catchments() {
             return network.filter("cat");
+        }
+
+        inline auto catchments(long lv) {
+            return network.filter("cat");
+        }
+
+        inline const auto& levels() {
+            return hf_levels;
         }
 
         inline bool is_remote_sender_nexus(std::string id) {
@@ -77,6 +86,7 @@ namespace hy_features {
       std::unordered_map<std::string, std::shared_ptr<HY_PointHydroNexusRemote>> _nexuses;
       network::Network network;
       std::shared_ptr<Formulation_Manager> formulations;
+      std::set<long> hf_levels;
       int mpi_rank;
       int mpi_num_procs;
 
